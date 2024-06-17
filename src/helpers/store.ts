@@ -52,7 +52,7 @@ export class InMemoryStore {
     const room = this.store.get(room_id);
 
     if (!room) {
-      return { message: "No room active", success: false };
+      return null
     }
 
     const chat: Chat = {
@@ -64,7 +64,7 @@ export class InMemoryStore {
     };
 
     room.chats.push(chat);
-    return { success: true, message: "User added to room successfully" };
+    return chat
   }
 
   upvote(user_id: string, room: string, chat_id: string) {

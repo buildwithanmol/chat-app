@@ -1,4 +1,5 @@
 import { connection } from "websocket";
+import { OutgoingMessage } from "./types/outgoing-messages";
 
 interface User {
   name: string;
@@ -45,9 +46,32 @@ export class UserManager {
 
   get_user(room_id: string, user_id: string) {
     if(!this.rooms.has(room_id)) {
-        return {message: ''}
-    }
+        return null
+    };
+    const user = this.rooms.get(room_id)?.users.find((({id}) => id === user_id));
+    return user ?? null;
   }
 
-  broadcast() {}
+  broadcast(room_id: string, user_id: string, message: OutgoingMessage) {
+    const users = this.get_user(room_id, user_id);
+    
+    if(!users) {
+      return {message: 'No rooms active', success: false}
+    };
+
+    const room = this.rooms.get(room_id);
+
+    if(!room) {
+      return {message: 'No room found'}
+    };
+
+    room.users.forEach((user) => {
+      if(user.id === user_id) {
+        return;
+      };
+      console.log("outgoing message " + JSON.stringify(message))
+      const data = JSON.stringify(message)
+      user.ws.sendUTF(data)
+    })
+  }
 }
